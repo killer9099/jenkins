@@ -30,6 +30,31 @@ resource "aws_instance" "my_instance" {
   ami           = "ami-0fd05997b4dff7aac" # DEBIAN 12 AMI
   instance_type = "t2.micro" # You can adjust the instance size
 
+
+ # EC2 Tags
+  tags = {
+    Name = "AnsibleManagedInstance"
+  }
+# Output the private IP address for use later
+  provisioner "local-exec" {
+    command = <<-EOT
+      echo "[webservers]" > inventory.ini
+      echo "${self.private_ip}" >> inventory.ini
+    EOT
+  }
+
+ # Optionally, you can also output the IP for later use
+  output "private_ip" {
+    value = aws_instance.example.private_ip
+  }
+}
+
+# You can also output the private IP address from Terraform
+output "instance_private_ip" {
+  value = aws_instance.example.private_ip
+}
+
+
   # Associate the instance with the security group
   security_groups = [aws_security_group.allow_all.name]
 
